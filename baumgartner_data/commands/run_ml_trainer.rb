@@ -1,3 +1,5 @@
+require 'json'
+require 'sidekiq'
 require 'csv'
 filepath = `git rev-parse --show-toplevel`.strip
 FILEPATH = filepath
