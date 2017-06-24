@@ -127,7 +127,6 @@ def generate_folds(dataset, labels, fold_count):
 				folded[c]['train_labels'].append(labels[i])
 	return folded
 
-args = {'file': "train_ml.csv"}
 all_conmats, all_guesses, fold_labels, used_models = run_ensemble_binary(args['file'], [model], [], False)
 keys, dataset, labels = dataset_array_form_from_csv(args['file'], [], False)
 {'dataset': dataset, 'labels': labels, 'predictions': all_guesses[0]}

@@ -23,14 +23,15 @@ class RunMLTrainer
     csv.close
     sample_altright_counts = sampled_ar.collect{|x| row = x.last.downcase.split(/[^[[:word:]]]+/);[1, keyword_groups.collect{|kg| (kg & row).length}].flatten}
     sample_background_counts = sampled_bg.collect{|x| row = x.last.downcase.split(/[^[[:word:]]]+/);[0, keyword_groups.collect{|kg| (kg & row).length}].flatten}
-    dataset = CSV.open("#{filepath}/baumgartner_data/machine_learning/ml_test_#{rand_val}_ml_comments.csv", "w")
+    dataset = CSV.open("#{FILEPATH}/baumgartner_data/machine_learning/ml_test_#{rand_val}_ml_comments.csv", "w")
     sample_altright_counts.each do |row|
       dataset << row
     end
     sample_background_counts.each do |row|
       dataset << row
     end
-    dataset.close    
+    dataset.close
+    `python #{FILEPATH}/baumgartner_data/commands/test_accuracy.py -f #{FILEPATH}/baumgartner_data/machine_learning/ml_test_#{rand_val}_ml_comments.csv`
   end
   
   def self.setup_data_asset
