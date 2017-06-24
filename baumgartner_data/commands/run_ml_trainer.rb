@@ -31,7 +31,11 @@ class RunMLTrainer
       dataset << row
     end
     dataset.close
-    `python #{FILEPATH}/baumgartner_data/commands/test_accuracy.py -f #{FILEPATH}/baumgartner_data/machine_learning/ml_test_#{rand_val}_ml_comments.csv`
+    ml_results = JSON.parse(`python #{FILEPATH}/baumgartner_data/commands/test_accuracy.py -f #{FILEPATH}/baumgartner_data/machine_learning/ml_test_#{rand_val}_ml_comments.csv`)
+    ml_results["accuracy"] = (ml_results["conmat"]["tp"]+ml_results["conmat"]["tn"])/2000.0
+    f = File.open("#{FILEPATH}/baumgartner_data/machine_learning/ml_test_#{rand_val}_ml_results.csv", "w")
+    f.write(ml_results.to_json)
+    f.close
   end
   
   def self.setup_data_asset
