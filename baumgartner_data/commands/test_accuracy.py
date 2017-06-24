@@ -1,3 +1,4 @@
+import json
 import pickle
 import argparse
 import itertools
@@ -129,4 +130,4 @@ def generate_folds(dataset, labels, fold_count):
 
 all_conmats, all_guesses, fold_labels, used_models = run_ensemble_binary(args['file'], [model], [], False)
 keys, dataset, labels = dataset_array_form_from_csv(args['file'], [], False)
-{'dataset': dataset, 'labels': labels, 'predictions': all_guesses[0]}
+print json.dumps({'conmat': all_conmats[0], 'predictions': all_guesses[0]})
