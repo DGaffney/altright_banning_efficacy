@@ -9,6 +9,7 @@ class TransformAltrightContent
   sidekiq_options queue: :train_ml_altright
   def perform(file)
     raw_dataset = CSV.read("#{FILEPATH}/baumgartner_data/comments_altrighters/#{file}", row_sep: "\n", col_sep: ",");false
+    return nil if raw_dataset.count == 0
     keyword_groups = JSON.parse(File.read("#{FILEPATH}/baumgartner_data/machine_learning/keyword_groups.json"));false
     csv = CSV.open("#{FILEPATH}/baumgartner_data/comments_altrighters_ml_transformed/#{file}", "w")
     ii = 0
