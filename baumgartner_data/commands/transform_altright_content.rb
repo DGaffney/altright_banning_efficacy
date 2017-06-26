@@ -19,7 +19,7 @@ class TransformAltrightContent
       puts ii if ii % 1000 == 0
     end
     csv.close
-    
+    `python #{FILEPATH}/baumgartner_data/commands/mark_all_comments_ml.py -m #{FILEPATH}/baumgartner_data/commands/ml_model_altright.pkl -f #{FILEPATH}/baumgartner_data/comments_altrighters_ml_transformed/#{file}`
   end
   
   def self.kickoff
