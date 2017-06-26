@@ -19,7 +19,12 @@ class TransformAltrightContent
       puts ii if ii % 1000 == 0
     end
     csv.close
-    `python #{FILEPATH}/baumgartner_data/commands/mark_all_comments_ml.py -m #{FILEPATH}/baumgartner_data/commands/ml_model_altright.pkl -f #{FILEPATH}/baumgartner_data/comments_altrighters_ml_transformed/#{file}`
+    predicted = JSON.parse(`python #{FILEPATH}/baumgartner_data/commands/mark_all_comments_ml.py -m #{FILEPATH}/baumgartner_data/commands/ml_model_altright.pkl -f #{FILEPATH}/baumgartner_data/comments_altrighters_ml_transformed/#{file}`)
+    csv = CSV.open("#{FILEPATH}/baumgartner_data/comments_altrighters_ml_predicted/#{file}", "w")
+    raw_dataset.zip(predicted).each do |row|
+      csv << row.flatten
+    end
+    csv.close
   end
   
   def self.kickoff
