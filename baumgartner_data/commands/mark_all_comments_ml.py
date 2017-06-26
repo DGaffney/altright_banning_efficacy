@@ -21,4 +21,4 @@ def read_csv(filename):
   return dataset
 
 dataset = read_csv(args['file'])
-print json.dumps(model.fit(dataset))
+print json.dumps(model.predict(dataset))
