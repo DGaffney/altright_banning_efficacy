@@ -15,9 +15,7 @@ def read_csv(filename):
   with open(filename, 'rb') as f:
       reader = csv.reader(f)
       for row in reader:
-        if i != 0:  
-          dataset.append([float(el) for el in row])
-        i += 1
+        dataset.append([float(el) for el in row])
   return dataset
 
 dataset = read_csv(args['file'])
