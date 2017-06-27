@@ -2,11 +2,12 @@ import json
 import pickle
 import csv
 import argparse
+import os
 from os import listdir
 from os.path import isfile, join
+filepath = os.popen('git rev-parse --show-toplevel').read().strip()
 ap = argparse.ArgumentParser()
 ap.add_argument("-f", "--file", help="file to learn from")
-ap.add_argument("-m", "--model", help="model to be used")
 args = vars(ap.parse_args())
 model = pickle.loads(open(filepath+"/baumgartner_data/commands/ml_model_altright.pkl").read())
 def read_csv(filename):
@@ -27,7 +28,6 @@ def read_csv_str(filename):
         dataset.append(row)
   return dataset
 
-filepath = os.popen('git rev-parse --show-toplevel').read().strip()
 raw_dataset = read_csv_str(filepath+"/baumgartner_data/comments_altrighters/"+file)
 keyword_groups = [set(el) for el in json.loads(open(filepath+"/baumgartner_data/machine_learning/keyword_groups.json").read())]
 csv = []
