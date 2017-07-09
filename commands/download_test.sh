@@ -2,5 +2,5 @@
 cd $(git rev-parse --show-toplevel)
 echo $(pwd)
 
-./baumgartner_data/commands/download_comments_test.sh
-./baumgartner_data/commands/download_submissions_test.sh
+./commands_test/download_comments_test.sh
+./commands_test/download_submissions_test.sh

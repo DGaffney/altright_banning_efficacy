@@ -1,5 +1,6 @@
 cd $(git rev-parse --show-toplevel)
 echo $(pwd)
+mkdir $(pwd)/baumgartner_data
 mkdir $(pwd)/baumgartner_data/comments_raw
 mkdir $(pwd)/baumgartner_data/submissions_raw
 mkdir $(pwd)/baumgartner_data/comments_background
