@@ -8,19 +8,19 @@ class ExtractAltrightContent
   def perform(file)
     if file.include?("RS_")
       ALTRIGHT_USERS.each_slice(100) do |user_slice|
-        `bzip2 -dck #{FILEPATH}/baumgartner_data/submissions_raw/#{file} | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .selftext, .title] | @csv' >> #{FILEPATH}/baumgartner_data/submissions_altrighters/#{file.split(".").first}.csv`
+        `bzip2 -dck #{FILEPATH}/baumgartner_data/submissions_raw/#{file} | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .selftext, .title] | @csv' >> #{FILEPATH}/baumgartner_data/submissions_altright/#{file.split(".").first}.csv`
       end
     elsif file.include?("RC_")
       ALTRIGHT_USERS.each_slice(100) do |user_slice|
-        `bzip2 -dck #{FILEPATH}/baumgartner_data/comments_raw/#{file} | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .parent_id, .body] | @csv' >> #{FILEPATH}/baumgartner_data/comments_altrighters/#{file.split(".").first}.csv`
+        `bzip2 -dck #{FILEPATH}/baumgartner_data/comments_raw/#{file} | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .parent_id, .body] | @csv' >> #{FILEPATH}/baumgartner_data/comments_altright/#{file.split(".").first}.csv`
       end
     end
   end
 
   def self.parse_missing_files
     ALTRIGHT_USERS.each_slice(100) do |user_slice|
-      `bzip2 -dck #{FILEPATH}/baumgartner_data/submissions_raw/missing_subreddits_0-10m.json.bz2 | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .selftext, .title] | @csv' >> #{FILEPATH}/baumgartner_data/submissions_altrighters/missing_subreddits_0-10m.csv`
-      `bzip2 -dck #{FILEPATH}/baumgartner_data/comments_raw/missing_comments.json.bz2 | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .selftext, .title] | @csv' >> #{FILEPATH}/baumgartner_data/comments_altrighters/missing_comments.csv`
+      `bzip2 -dck #{FILEPATH}/baumgartner_data/submissions_raw/missing_subreddits_0-10m.json.bz2 | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .selftext, .title] | @csv' >> #{FILEPATH}/baumgartner_data/submissions_altright/missing_subreddits_0-10m.csv`
+      `bzip2 -dck #{FILEPATH}/baumgartner_data/comments_raw/missing_comments.json.bz2 | jq -r 'select([.author] | inside([\"#{user_slice.join('", "')}\"])) | [(.created_utc | tostring), .subreddit, .author, .id, .selftext, .title] | @csv' >> #{FILEPATH}/baumgartner_data/comments_altright/missing_comments.csv`
     end
   end
   
@@ -37,3 +37,7 @@ class ExtractAltrightContent
     self.parse_missing_files
   end
 end
+
+
+ExtractAltrightContent.kickoff_sequential if $0 == __FILE__ && ARGV.empty?
+ExtractAltrightContent.kickoff_sequential_test if $0 == __FILE__ && ARGV[0] == "test"

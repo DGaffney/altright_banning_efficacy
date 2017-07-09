@@ -16,10 +16,10 @@ background_counts = {}
 end;false
 altright_counts = {}
 altright_data = []
-`ls #{filepath}/baumgartner_data/comments_altrighters/`.split("\n").each do |file|
+`ls #{filepath}/baumgartner_data/comments_altright/`.split("\n").each do |file|
   puts file
   puts altright_data.count
-    background_file = CSV.read("#{filepath}/baumgartner_data/comments_altrighters/#{file}", col_sep: ",", row_sep: "\n");false
+    background_file = CSV.read("#{filepath}/baumgartner_data/comments_altright/#{file}", col_sep: ",", row_sep: "\n");false
     altright = background_file.select{|x| x[1] == "altright"};false
     altright.collect{|ar| altright_data << ar}
     altright.collect(&:last).collect(&:downcase).collect{|s| s.split(/[^[[:word:]]]+/)}.flatten.counts.each do |word, count|
@@ -31,10 +31,10 @@ background_sum = background_counts.values.sum
 altright_sum = altright_counts.values.sum
 representativeness = Hash[altright_counts.collect{|k,v| [k, (v/altright_sum.to_f)/((background_counts[k]||1)/background_sum)]}];false
 altright_comments = []
-`ls #{filepath}/baumgartner_data/comments_altrighters/`.split("\n").each do |file|
+`ls #{filepath}/baumgartner_data/comments_altright/`.split("\n").each do |file|
   puts file
   begin
-    background_file = CSV.read("#{filepath}/baumgartner_data/comments_altrighters/#{file}");false
+    background_file = CSV.read("#{filepath}/baumgartner_data/comments_altright/#{file}");false
     altright = background_file.select{|x| x[1] == "altright"};false
     altright.collect{|a| altright_comments << a}
   rescue
