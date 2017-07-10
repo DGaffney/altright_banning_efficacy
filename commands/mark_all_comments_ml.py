@@ -30,7 +30,7 @@ def read_csv_str(filename):
         dataset.append(row)
   return dataset
 
-raw_dataset = read_csv_str(filepath+"/baumgartner_data/comments_altrighters/"+args['file'])
+raw_dataset = read_csv_str(filepath+"/baumgartner_data/comments_altright/"+args['file'])
 keyword_groups = [set(el) for el in json.loads(open(filepath+"/baumgartner_data/machine_learning/keyword_groups.json").read())]
 csv_data = []
 ii = 0
@@ -44,7 +44,7 @@ for row in raw_dataset:
   if ii % 1000 == 0:
     print ii
 
-with open(filepath+"/baumgartner_data/comments_altrighters_ml_transformed/"+args['file'], 'wb') as f:
+with open(filepath+"/baumgartner_data/comments_altright_ml_transformed/"+args['file'], 'wb') as f:
   writer = csv.writer(f)
   writer.writerows(csv_data)
 
@@ -54,6 +54,6 @@ for i,row in enumerate(raw_dataset):
   row.append(predictions[i])
   raw_merged.append(row)
 
-with open(filepath+"/baumgartner_data/comments_altrighters_ml_predicted/"+args['file'], 'wb') as f:
+with open(filepath+"/baumgartner_data/comments_altright_ml_predicted/"+args['file'], 'wb') as f:
   writer = csv.writer(f)
   writer.writerows(raw_merged)
