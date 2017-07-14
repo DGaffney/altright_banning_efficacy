@@ -1,7 +1,7 @@
+require 'pry'
 require 'csv'
 require 'sidekiq'
 FILEPATH = `git rev-parse --show-toplevel`.strip
-ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data/altrighter_screen_names_uniq.csv").flatten
 class ExtractAltrightContent
   include Sidekiq::Worker
   sidekiq_options queue: :extract_altright_content
@@ -38,16 +38,16 @@ class ExtractAltrightContent
   end
   
   def self.kickoff_sequential_test
-    `ls #{FILEPATH}/baumgartner_data/submissions_raw`.split("\n").select{|f| f.include?("RS_")}.collect{|x| ExtractAltrightContent.new.perform(x, "test")}
-    `ls #{FILEPATH}/baumgartner_data/comments_raw`.split("\n").select{|f| f.include?("RC_")}.collect{|x| ExtractAltrightContent.new.perform(x, "test")}
-    self.parse_missing_files("test")
+    `ls #{FILEPATH}/baumgartner_data_test/submissions_raw`.split("\n").select{|f| f.include?("RS_")}.collect{|x| ExtractAltrightContent.new.perform(x, "_test")}
+    `ls #{FILEPATH}/baumgartner_data_test/comments_raw`.split("\n").select{|f| f.include?("RC_")}.collect{|x| ExtractAltrightContent.new.perform(x, "_test")}
   end
 end
 
 
-
 if $0 == __FILE__ && ARGV.empty?
+  ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data/altrighter_screen_names_uniq.csv").flatten
   ExtractAltrightContent.kickoff_sequential 
 elsif $0 == __FILE__ && ARGV[0] == "test"
+  ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data_test/altrighter_screen_names_uniq.csv").flatten
   ExtractAltrightContent.kickoff_sequential_test 
 end

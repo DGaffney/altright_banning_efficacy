@@ -1,8 +1,12 @@
+import re
+import string
+import os
 import json
 import pickle
 import argparse
 import itertools
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import AdaBoostClassifier
 import random
 import itertools
 from scipy import stats
@@ -10,10 +14,7 @@ import numpy as np
 import csv
 from os import listdir
 from os.path import isfile, join
-ap = argparse.ArgumentParser()
-ap.add_argument("-f", "--file", help="file to learn from")
-args = vars(ap.parse_args())
-model = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 5, 2, 5), random_state=1)
+import pickle
 def produce_ensemble_guesses_restricted(all_guesses, fold_labels, clfs, included_clfs):
   success = 0
   count = 0.0
@@ -128,6 +129,16 @@ def generate_folds(dataset, labels, fold_count):
 				folded[c]['train_labels'].append(labels[i])
 	return folded
 
-all_conmats, all_guesses, fold_labels, used_models = run_ensemble_binary(args['file'], [model], [], False)
-keys, dataset, labels = dataset_array_form_from_csv(args['file'], [], False)
-print json.dumps({'conmat': all_conmats[0], 'predictions': all_guesses[0]})
+def read_csv_str(filename):
+  dataset = []
+  i = 0
+  with open(filename, 'rb') as f:
+      reader = csv.reader(f)
+      for row in reader:
+        dataset.append(row)
+  return dataset
+
+
+model = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 5, 2, 5), random_state=1)
+filepath = os.popen('git rev-parse --show-toplevel').read().strip()
+keyword_groups = [set(el) for el in json.loads(open(filepath+"/baumgartner_data/machine_learning/inner_keyword_groups.json").read())]

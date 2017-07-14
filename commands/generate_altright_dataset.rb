@@ -2,10 +2,10 @@ require 'csv'
 filepath = `git rev-parse --show-toplevel`.strip
 load filepath+'/array.rb'
 all_altright = []
-`ls #{filepath}/baumgartner_data/comments_altright/`.split("\n").each do |file|
+`ls #{filepath}/baumgartner_data/submissions_altright/`.split("\n").each do |file|
   puts file
   begin
-    background_file = CSV.read("#{filepath}/baumgartner_data/comments_altright/#{file}", col_sep: ",", row_sep: "\n");false
+    background_file = CSV.read("#{filepath}/baumgartner_data/submissions_altright/#{file}", col_sep: ",", row_sep: "\n");false
     background_file.each do |row|
     all_altright << row
     end
