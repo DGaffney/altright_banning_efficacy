@@ -9,3 +9,6 @@ mkdir $(pwd)/baumgartner_data/comments_altright_screen_names
 mkdir $(pwd)/baumgartner_data/submissions_altright_screen_names
 mkdir $(pwd)/baumgartner_data/submissions_altright
 mkdir $(pwd)/baumgartner_data/comments_altright
+mkdir $(pwd)/baumgartner_data/machine_learning_resources
+mkdir $(pwd)/baumgartner_data/machine_learning_results
+mkdir $(pwd)/baumgartner_data/machine_learning_results_aggregated

@@ -4,7 +4,6 @@ from os.path import join, exists, split
 import os
 import numpy as np
 
-
 def train_word2vec(sentence_matrix, vocabulary_inv,
                    num_features=300, min_word_count=1, context=10):
     """
@@ -31,7 +30,7 @@ def train_word2vec(sentence_matrix, vocabulary_inv,
 
         # Initialize and train the model
         print('Training Word2Vec model...')
-        sentences = [[vocabulary_inv[w] for w in s] for s in sentence_matrix]
+        sentences = [[vocabulary_inv[w] for w in s] for s in sentence_matrix.tolist()]
         embedding_model = word2vec.Word2Vec(sentences, workers=num_workers,
                                             size=num_features, min_count=min_word_count,
                                             window=context, sample=downsampling)
