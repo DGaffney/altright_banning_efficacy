@@ -14,5 +14,5 @@ python commands/keras_neural_net_internal_consistency.py -d inner -t test
 python commands/keras_neural_net_internal_consistency.py -d background -t test
 python commands/keras_generate_neural_net_models.py -d inner -t test -c 100
 python commands/keras_generate_neural_net_models.py -d background -t test -c 100
-vocabulary = json.loads(open(filepath+"/baumgartner_data"+prefix+"/machine_learning_resources/"+dataset+"_vocabulary.json"))
-##From https://github.com/dennybritz/cnn-text-classification-tf/blob/master/data_helpers.py
+python commands/keras_mark_all_comments.py -d inner -t test -c 100
+python commands/keras_mark_all_comments.py -d background -t test -c 100

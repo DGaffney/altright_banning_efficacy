@@ -2,17 +2,24 @@ import numpy as np
 import re
 import itertools
 from collections import Counter
+from itertools import izip_longest
+from nltk.stem import PorterStemmer
+from nltk.tokenize import sent_tokenize, word_tokenize
+def grouper(n, iterable, fillvalue=None):
+    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return izip_longest(fillvalue=fillvalue, *args)
 
 """
 Original taken from https://github.com/dennybritz/cnn-text-classification-tf
 """
-
-
 def clean_str(string):
     """
     Tokenization/string cleaning for all datasets except for SST.
     Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
     """
+    #stemmer code from  - not the quite right place for this job but it'll be needed somewhere.
+    ps = PorterStemmer()
     string = re.sub(r"[^A-Za-z0-9(),!?\'\`]", " ", string)
     string = re.sub(r"\'s", " \'s", string)
     string = re.sub(r"\'ve", " \'ve", string)
@@ -58,7 +65,7 @@ def pad_sentences(sentences, sequence_length=-1, padding_word="<PAD/>"):
     Pads all sentences to the same length. The length is defined by the longest sentence.
     Returns padded sentences.
     """
-    if sequence_length == -1
+    if sequence_length == -1:
       sequence_length = max(len(x) for x in sentences)
     padded_sentences = []
     for i in range(len(sentences)):
@@ -90,8 +97,7 @@ def build_input_data(sentences, labels, vocabulary):
     x = np.array([[vocabulary[word] for word in sentence] for sentence in sentences])
     y = np.array(labels)
     return [x, y]
-
-
+    
 def load_data(path, dataset):
     """
     Loads and preprocessed data for the MR dataset.

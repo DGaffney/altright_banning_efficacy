@@ -52,45 +52,12 @@ def load_data(path, dataset):
   y = y[shuffle_indices]
   return x, y, vocabulary, vocabulary_inv
 
-
-def generate_folds(dataset, labels, fold_count):
-  folded = []
-  for i in range(fold_count):
-    folded.append({'test_set': [], 'train_set': [], 'test_labels': [], 'train_labels': []})
-  i = 0
-  all_counts = range(fold_count)
-  for i in range(len(dataset)):
-    mod = i%fold_count
-    folded[mod]['test_set'].append(dataset[i])
-    folded[mod]['test_labels'].append(labels[i])
-    for c in all_counts:
-      if c != mod:
-        folded[c]['train_set'].append(dataset[i])
-        folded[c]['train_labels'].append(labels[i])
-  return folded
-
-def merge_conmats(conmats):
-  conmat = {'tp': 0, 'tn': 0, 'fp': 0, 'fn': 0}
-  for cc in conmats:
-    for key in cc.keys():
-      conmat[key] += cc[key]
-  return conmat
-
-def sensitivity(conmat):
-  return float(conmat['tp'])/(conmat['tp']+conmat['fn'])
-
-def specificity(conmat):
-  return float(conmat['tn'])/(conmat['tn']+conmat['fp'])
-
-def accuracy(conmat):
-  return float(conmat['tn']+conmat['tp'])/sum(conmat.values())
-
+args["dataset"] = "inner"
 dataset = args["dataset"]
 prefix = '' if args["test"] == None else '_test'
 filepath = os.popen('git rev-parse --show-toplevel').read().strip()
 path = filepath+"/baumgartner_data"+prefix+"/machine_learning_resources"
 x, y, vocabulary, vocabulary_inv = load_data(path, dataset)
-models = []
 if sequence_length != x.shape[1]:
     print("Adjusting sequence length for actual size")
     sequence_length = x.shape[1]
@@ -98,42 +65,48 @@ if sequence_length != x.shape[1]:
 print("Vocabulary Size: {:d}".format(len(vocabulary_inv)))
 # Prepare embedding layer weights and convert inputs for static model
 print("Model type is", model_type)
-if model_type in ["CNN-non-static", "CNN-static"]:
-    embedding_weights = train_word2vec(np.vstack((x)), vocabulary_inv, num_features=embedding_dim,
-                                       min_word_count=min_word_count, context=context)
-    if model_type == "CNN-static":
-        x = np.stack([np.stack([embedding_weights[word] for word in sentence]) for sentence in x])
-        print("x static shape:", x.shape)
+with open(path+"/"+dataset+'_vocabulary.json', 'w') as outfile:
+    json.dump(vocabulary, outfile)
 
-if model_type == "CNN-static":
-    input_shape = (sequence_length, embedding_dim)
-else:
-    input_shape = (sequence_length,)
+with open(path+"/"+dataset+'_vocabulary_inv.json', 'w') as outfile:
+    json.dump(vocabulary_inv, outfile)
 
-model_input = Input(shape=input_shape)
-if model_type == "CNN-static":
-    z = model_input
-else:
-    z = Embedding(len(vocabulary_inv), embedding_dim, input_length=sequence_length, name="embedding")(model_input)
-
-z = Dropout(dropout_prob[0])(z)
-# Convolutional block
-conv_blocks = []
-for sz in filter_sizes:
-    conv = Convolution1D(filters=num_filters,
-                         kernel_size=sz,
-                         padding="valid",
-                         activation="relu",
-                         strides=1)(z)
-    conv = MaxPooling1D(pool_size=2)(conv)
-    conv = Flatten()(conv)
-    conv_blocks.append(conv)
-
-z = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
-z = Dropout(dropout_prob[1])(z)
-z = Dense(hidden_dims, activation="relu")(z)
-model_output = Dense(1, activation="sigmoid")(z)
-for i in range(2):
+for i in range(100):
+  if model_type in ["CNN-non-static", "CNN-static"]:
+      embedding_weights = train_word2vec(np.vstack((x)), vocabulary_inv, num_features=embedding_dim,
+                                         min_word_count=min_word_count, context=context)
+      if model_type == "CNN-static":
+          x = np.stack([np.stack([embedding_weights[word] for word in sentence]) for sentence in x])
+          print("x static shape:", x.shape)
+  
+  if model_type == "CNN-static":
+      input_shape = (sequence_length, embedding_dim)
+  else:
+      input_shape = (sequence_length,)
+  
+  model_input = Input(shape=input_shape)
+  if model_type == "CNN-static":
+      z = model_input
+  else:
+      z = Embedding(len(vocabulary_inv), embedding_dim, input_length=sequence_length, name="embedding")(model_input)
+  
+  z = Dropout(dropout_prob[0])(z)
+  # Convolutional block
+  conv_blocks = []
+  for sz in filter_sizes:
+      conv = Convolution1D(filters=num_filters,
+                           kernel_size=sz,
+                           padding="valid",
+                           activation="relu",
+                           strides=1)(z)
+      conv = MaxPooling1D(pool_size=2)(conv)
+      conv = Flatten()(conv)
+      conv_blocks.append(conv)
+  
+  z = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
+  z = Dropout(dropout_prob[1])(z)
+  z = Dense(hidden_dims, activation="relu")(z)
+  model_output = Dense(1, activation="sigmoid")(z)
   model = Model(model_input, model_output)
   model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
   if model_type == "CNN-non-static":
@@ -141,9 +114,5 @@ for i in range(2):
       print("Initializing embedding layer with word2vec weights, shape", weights.shape)
       embedding_layer = model.get_layer("embedding")
       embedding_layer.set_weights([weights])
-  models.append(model.fit(x, y, batch_size=batch_size, epochs=num_epochs))
-
-print json.dumps(merge_conmats(conmats))
-print accuracy(merge_conmats(conmats))
-print sensitivity(merge_conmats(conmats))
-print specificity(merge_conmats(conmats))
+  model.fit(x, y, batch_size=batch_size, epochs=num_epochs)
+  model.save(path+"/"+dataset+"_neural_net_voter_"+str(i)+".hdf5")

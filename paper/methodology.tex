@@ -29,6 +29,34 @@ The above questions require little more than simple aggregations upon the corpus
 Finally, building on \cite{barbosa2016averaging}'s work showing that yearly cohorts may differ significantly, we answer the above questions with respect to the year in which they first began to participate on Reddit. Substantively speaking, this makes clear sense -- the altright subreddit was created in 2010 and only gained appreciable traffic in 2016 -- users who had long participated in Reddit prior to that time may have adapted to Reddit's norms in general prior to altright community norms, and so may react differently to the exogenous shock of banning the altright subreddit. For this reason, all metrics are reported in terms of the entire cohort of 8,985 individuals as well as the cohort broken into yearly groups where applicable or useful.
 
 From June 25 2006 to April 29, 2017 8,985 distinct Reddit users posted either a Submission or a Comment to the altright subreddit at least once. Collectively, these users generated 18,537,690 Submissions and Comments across Reddit as a whole. On February 1st, 2017, the altright subreddit was banned \cite{altright2017banned}. Between February 1st, 2017 and April 29, 2017, 1,821,117 Comments were posted by these individuals as per the Baumgartner dataset. Zero submissions were recorded, likely owing to data errors as elucidated in forthcoming work by Nate Matias and one of the authors that shows gaps in the existing Baumgartner dataset. Due to this paucity of Submission-level data, this work focuses on Comments, which in addition to being accessible, are also more discursive by their nature and likely provide more useful insight into where users interests lie.
+
+CROSS VALIDATION RESULTS: 
+{"tn": 10488, "fp": 501, "fn": 640, "tp": 2699}
+0.920365717476
+0.808325846062
+0.954408954409
+dgaff@dgaff:/media/dgaff/backup/Code/altright_banning_efficacy/commands$ python keras_neural_net_cross_validation.py -d inner
+
+RESULT OF TEN RUNS FOR EACH FOLD OF 10 FOLDS USING EITHER AVERAGE VOTE VALUE OR MAJORITY SIDED VOTE:
+{"tn": 1147, "fp": 74, "fn": 55, "tp": 316}
+Accuracy of averaging 10 models for 10-fold
+0.918969849246
+Sensitivity of averaging 10 models for 10-fold
+0.851752021563
+Specificity of averaging 10 models for 10-fold
+0.939393939394
+Conmat of majority 10 models for 10-fold
+{"tn": 1118, "fp": 80, "fn": 40, "tp": 322}
+Accuracy of majority 10 models for 10-fold
+0.923076923077
+Sensitivity of majority 10 models for 10-fold
+0.889502762431
+Specificity of majority 10 models for 10-fold
+0.933222036728
+dgaff@dgaff:/media/dgaff/backup/Code/altright_banning_efficacy/commands$ python keras_neural_net_internal_consistency.py -d inner
+
+NEED INTERRATER HERE:
+
 \bibliographystyle{apacite}
 \bibliography{biblio}
 \clearpage

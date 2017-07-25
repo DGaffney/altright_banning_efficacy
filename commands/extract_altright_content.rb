@@ -45,9 +45,9 @@ end
 
 
 if $0 == __FILE__ && ARGV.empty?
-  ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data/altrighter_screen_names_uniq.csv").flatten
+  ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data/altright_screen_names_uniq.csv").flatten
   ExtractAltrightContent.kickoff_sequential 
 elsif $0 == __FILE__ && ARGV[0] == "test"
-  ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data_test/altrighter_screen_names_uniq.csv").flatten
+  ALTRIGHT_USERS = CSV.read(FILEPATH+"/baumgartner_data_test/altright_screen_names_uniq.csv").flatten
   ExtractAltrightContent.kickoff_sequential_test 
 end
