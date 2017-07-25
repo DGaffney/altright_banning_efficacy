@@ -5,7 +5,7 @@ echo $(pwd)
 ./commands_test/extract_background_test.sh
 ./commands_test/extract_altright_screen_names_test.sh
 ruby commands/extract_altright_content.rb test
-./commands_test/concat_content.sh
+./commands_test/concat_content_test.sh
 python commands/generate_neural_net_corpus.py -d inner -t test
 python commands/generate_neural_net_corpus.py -d background -t test
 python commands/keras_neural_net_cross_validation.py -d inner -t test
