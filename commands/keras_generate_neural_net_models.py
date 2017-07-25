@@ -14,6 +14,7 @@ from keras.preprocessing import sequence
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", help="dataset to sanitize ('background' or 'inner')")
 ap.add_argument("-t", "--test", help="is test? Add in option if it's a test otherwise leave empty")
+ap.add_argument("-c", "--count", help="Number of Neural Nets To Train", type=int)
 args = vars(ap.parse_args())
 
 # ---------------------- Parameters section -------------------
@@ -71,7 +72,7 @@ with open(path+"/"+dataset+'_vocabulary.json', 'w') as outfile:
 with open(path+"/"+dataset+'_vocabulary_inv.json', 'w') as outfile:
     json.dump(vocabulary_inv, outfile)
 
-for i in range(100):
+for i in range(args['count']):
   if model_type in ["CNN-non-static", "CNN-static"]:
       embedding_weights = train_word2vec(np.vstack((x)), vocabulary_inv, num_features=embedding_dim,
                                          min_word_count=min_word_count, context=context)
