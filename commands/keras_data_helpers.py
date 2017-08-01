@@ -10,7 +10,6 @@ def grouper(n, iterable, fillvalue=None):
     args = [iter(iterable)] * n
     return izip_longest(fillvalue=fillvalue, *args)
 
-singles = [stemmer.stem(plural) for plural in plurals]
 """
 Original taken from https://github.com/dennybritz/cnn-text-classification-tf
 """
