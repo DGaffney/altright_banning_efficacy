@@ -21,9 +21,9 @@ def read_csv_str(filename):
 dataset = args["dataset"]
 prefix = '' if args["test"] == None else '_test'
 filepath = os.popen('git rev-parse --show-toplevel').read().strip()
-human_votes = read_csv_str(filepath+"/baumgartner_data"+prefix+"/machine_learning_resources/"+dataset+"_human_votes.csv")
-pos_votes = [[keras_data_helpers.clean_str(r[0]), r[1]] for r in human_votes if float(r[1]) == 1]
-neg_votes = [[keras_data_helpers.clean_str(r[0]), r[1]] for r in human_votes if float(r[1]) == 0]
+human_votes = read_csv_str(filepath+"/baumgartner_data"+prefix+"/machine_learning_resources/"+dataset+"_human_votes_nnet.csv")
+pos_votes = [[keras_data_helpers.clean_str(r[8]), r[-1]] for r in human_votes[1:] if float(r[-1]) == 1]
+neg_votes = [[keras_data_helpers.clean_str(r[8]), r[-1]] for r in human_votes[1:] if float(r[-1]) == 0]
 
 with open(filepath+"/baumgartner_data"+prefix+"/machine_learning_resources/altright-"+dataset+".pos", 'wb') as f:
     writer = csv.writer(f)

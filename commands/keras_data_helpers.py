@@ -10,6 +10,7 @@ def grouper(n, iterable, fillvalue=None):
     args = [iter(iterable)] * n
     return izip_longest(fillvalue=fillvalue, *args)
 
+singles = [stemmer.stem(plural) for plural in plurals]
 """
 Original taken from https://github.com/dennybritz/cnn-text-classification-tf
 """
@@ -31,6 +32,8 @@ def clean_str(string):
     string = re.sub(r"!", " ! ", string)
     string = re.sub(r"\(", " \( ", string)
     string = re.sub(r"\)", " \) ", string)
+    string = re.sub(r" \\\(  \\\(  \\\( ", " \(\(\( ", string)
+    string = re.sub(r" \\\)  \\\)  \\\) ", " \)\)\) ", string)
     string = re.sub(r"\?", " \? ", string)
     string = re.sub(r"\s{2,}", " ", string)
     string = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', "<URL/>", string)
@@ -38,6 +41,69 @@ def clean_str(string):
     string = re.sub(r"com", " ", string)
     string = re.sub(r"org", " ", string)
     return string.strip().lower()
+
+def stem_word(word):
+  if "ethnic" in word:
+    return "ethnic"
+  elif "ethno" in word:
+    return "ethnic"
+  elif "jew" in word:
+    return "jew"
+  elif "jewed" in word:
+    return "jew"
+  elif "jewified" in word:
+    return "jew"
+  elif word == "keked" or word == "topkek":
+    return "kek"
+  elif "goyim" in word:
+    return "goy"
+  elif "jq" in word:
+    return "holocaust"
+  elif "mexic" in word:
+    return "mexico"
+  elif word == "skype" or word == "joo" or word == "joos":
+    return "joo"
+  elif word == "negroid":
+    return "negro"
+  elif word == "racial":
+    return "race"
+  elif word == "racialist":
+    return "race"
+  elif word == "whiteopia":
+    return "white"
+  elif word == "genes" or word == "genetics" or word == "genotype" or word == "genotypical" or word == "geneticist":
+    return "gene"
+  elif word == "slavic":
+    return "slav"
+  elif word == "antifa":
+    return "antifascist"
+  elif word == "cuckold" or word == "cuckoldry" or word == "cuckoldery" or word == "cucky" or word == "cuckolding" or word == "cuckolded" or word == "cuckservative" or word == "cuckservatives":
+    return "cuck"
+  elif word == "lefty" or word == "lefties" or word == "leftist":
+    return "left"
+  elif word == "asian" or word == "asiatic":
+    return "asia"
+  elif word == "talmudic":
+    return "talmud"
+  elif word == "triggery":
+    return "trigger"
+  elif word == "immigration" or word == "immigrations" or word == "immigrants" or word == "emigration" or word == "emigrant" or word == "emigrants":
+    return "immigrant"
+  elif word == "nuffin":
+    return "muffin"
+  elif word == "dindu":
+    return "negro"
+  elif word == "abo" or word == "abos":
+    return "negro"
+  elif word == "libshit":
+    return "left"
+  elif word == "fashy" or word == "fashwave" or word == "fashies":
+    return "fash"
+  elif word == "shoah":
+    return "holocaust"
+  elif word == "14" or word == "88" or word == "1488":
+    return "1488"
+  return word
 
 def load_data_and_labels(path, dataset):
     """
@@ -52,7 +118,7 @@ def load_data_and_labels(path, dataset):
     # Split by words
     x_text = positive_examples + negative_examples
     x_text = [clean_str(sent) for sent in x_text]
-    x_text = [s.split(" ") for s in x_text]
+    x_text = [[PorterStemmer().stem(stem_word(word)) for word in s.split(" ")] for s in x_text]
     # Generate labels
     positive_labels = [[0, 1] for _ in positive_examples]
     negative_labels = [[1, 0] for _ in negative_examples]
