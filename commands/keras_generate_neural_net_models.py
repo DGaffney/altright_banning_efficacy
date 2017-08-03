@@ -1,3 +1,4 @@
+from nltk.stem import PorterStemmer
 import json
 import os
 import argparse
@@ -26,11 +27,11 @@ model_type = "CNN-non-static"  # CNN-rand|CNN-non-static|CNN-static
 data_source = "keras_data_set"  # keras_data_set|local_dir
 
 # Model Hyperparameters
-embedding_dim = 50
-filter_sizes = (3, 8)
-num_filters = 10
+embedding_dim = 60
+filter_sizes = (4, 10)
+num_filters = 20
 dropout_prob = (0.5, 0.8)
-hidden_dims = 50
+hidden_dims = 60
 
 # Training parameters
 batch_size = 64
@@ -63,6 +64,11 @@ if sequence_length != x.shape[1]:
     print("Adjusting sequence length for actual size")
     sequence_length = x.shape[1]
 
+observations = read_csv_str(path+"/"+dataset+"_human_votes_testing.csv")
+max_len = np.shape(x)[1]
+cleaned_sents = [str.join(" ", [PorterStemmer().stem(keras_data_helpers.stem_word(word)) for word in keras_data_helpers.clean_str(r[5]).split(" ")]) for r in observations]
+test_dataset = np.array([[vocabulary.get(word, 0) for word in sentence] for sentence in keras_data_helpers.pad_sentences([keras_data_helpers.clean_str(sent).split(" ")[:max_len] for sent in cleaned_sents], max_len)])
+
 print("Vocabulary Size: {:d}".format(len(vocabulary_inv)))
 # Prepare embedding layer weights and convert inputs for static model
 print("Model type is", model_type)
@@ -72,6 +78,23 @@ with open(path+"/"+dataset+'_vocabulary.json', 'w') as outfile:
 with open(path+"/"+dataset+'_vocabulary_inv.json', 'w') as outfile:
     json.dump(vocabulary_inv, outfile)
 
+def sensitivity(conmat):
+  return float(conmat['tp'])/(conmat['tp']+conmat['fn'])
+
+def specificity(conmat):
+  return float(conmat['tn'])/(conmat['tn']+conmat['fp'])
+
+def accuracy(conmat):
+  return float(conmat['tn']+conmat['tp'])/sum(conmat.values())
+
+def precision(conmat):
+  return float(conmat['tp'])/(conmat['tp']+conmat['fp'])
+
+def recall(conmat):
+  return float(conmat['tp'])/(conmat['tp']+conmat['fn'])
+
+
+conmats = []
 for i in range(args['count']):
   if model_type in ["CNN-non-static", "CNN-static"]:
       embedding_weights = train_word2vec(np.vstack((x)), vocabulary_inv, num_features=embedding_dim,
@@ -115,5 +138,18 @@ for i in range(args['count']):
       print("Initializing embedding layer with word2vec weights, shape", weights.shape)
       embedding_layer = model.get_layer("embedding")
       embedding_layer.set_weights([weights])
-  model.fit(x, y, batch_size=batch_size, epochs=num_epochs)
+  model.fit(x, y, validation_split=0.10, batch_size=batch_size, epochs=num_epochs)
+  predictions = [el[0] for el in model.predict(test_dataset, batch_size=10, verbose=1).tolist()]
+  conmat = {'fp': 0, 'tn': 0, 'tp': 0, 'fn': 0}
+  for i,pred in enumerate(predictions):
+    if float(observations[i][-2]) < 0.5 and pred < 0.5:
+      conmat['tn'] += 1
+    elif float(observations[i][-2]) < 0.5 and pred > 0.5:
+      conmat['fp'] += 1
+    elif float(observations[i][-2]) > 0.5 and pred < 0.5:
+      conmat['fn'] += 1
+    elif float(observations[i][-2]) > 0.5 and pred > 0.5:
+      conmat['tp'] += 1
+  conmats.append(conmat)
+  print accuracy(conmat)
   model.save(path+"/"+dataset+"_neural_net_voter_"+str(i)+".hdf5")

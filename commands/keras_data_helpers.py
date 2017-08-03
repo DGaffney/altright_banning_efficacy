@@ -1,3 +1,4 @@
+import pickle
 import numpy as np
 import re
 import itertools
@@ -19,7 +20,6 @@ def clean_str(string):
     Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
     """
     #stemmer code from  - not the quite right place for this job but it'll be needed somewhere.
-    ps = PorterStemmer()
     string = re.sub(r"[^A-Za-z0-9(),!?\'\`]", " ", string)
     string = re.sub(r"\'s", " \'s", string)
     string = re.sub(r"\'ve", " \'ve", string)
@@ -163,7 +163,7 @@ def build_input_data(sentences, labels, vocabulary):
     y = np.array(labels)
     return [x, y]
     
-def load_data(path, dataset):
+def load_data(path, dataset, use_full_vocab=True):
     """
     Loads and preprocessed data for the MR dataset.
     Returns input vectors, labels, vocabulary, and inverse vocabulary.
@@ -171,7 +171,11 @@ def load_data(path, dataset):
     # Load and preprocess data
     sentences, labels = load_data_and_labels(path, dataset)
     sentences_padded = pad_sentences(sentences)
-    vocabulary, vocabulary_inv = build_vocab(sentences_padded)
+    if use_full_vocab != True:
+      vocabulary, vocabulary_inv = build_vocab(sentences_padded)
+    else:
+      vocabulary_inv = pickle.load(open(path+'/'+dataset+'_full_altright_comments_vocabulary_inv.pkl', 'rb'))
+      vocabulary = pickle.load(open(path+'/'+dataset+'_full_altright_comments_vocabulary.pkl', 'rb'))
     x, y = build_input_data(sentences_padded, labels, vocabulary)
     return [x, y, vocabulary, vocabulary_inv]
 

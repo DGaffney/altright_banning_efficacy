@@ -11,6 +11,7 @@ python commands/keras_neural_net_cross_validation.py -d inner -t test
 python commands/keras_neural_net_internal_consistency.py -d inner -t test
 python commands/keras_generate_neural_net_models.py -d inner -t test -c 10
 python commands/keras_mark_all_comments.py -d inner -t test -c 10
+python commands/yield_best_combined_predictor.py -d inner -t test -c 10
 #python commands/generate_neural_net_corpus.py -d background -t test
 #python commands/keras_neural_net_cross_validation.py -d background -t test
 #python commands/keras_neural_net_internal_consistency.py -d background -t test
