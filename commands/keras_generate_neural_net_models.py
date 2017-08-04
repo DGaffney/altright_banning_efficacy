@@ -152,7 +152,7 @@ for i in range(args['count']):
       print("Initializing embedding layer with word2vec weights, shape", weights.shape)
       embedding_layer = model.get_layer("embedding")
       embedding_layer.set_weights([weights])
-  model.fit(x, y, validation_split=0.10, batch_size=batch_size, epochs=num_epochs)
+  model.fit(np.array(x), np.array(y), validation_split=0.10, batch_size=batch_size, epochs=num_epochs)
   predictions = [el[0] for el in model.predict(test_dataset, batch_size=10, verbose=1).tolist()]
   conmat = {'fp': 0, 'tn': 0, 'tp': 0, 'fn': 0}
   for i,pred in enumerate(predictions):
