@@ -190,6 +190,8 @@ def load_data(path, dataset, vocab_cutoff=-1):
           truncated_vocabulary[key] = vocabulary[key]
       for i in range(vocab_cutoff):
         truncated_vocabulary_inv.append(vocabulary_inv[i])
+    truncated_vocabulary["<MISSING/>"] = vocab_cutoff+1
+    truncated_vocabulary_inv.append("<MISSING/>")
     x, y = build_input_data(sentences_padded, labels, truncated_vocabulary, vocab_cutoff)
     return [x, y, truncated_vocabulary, truncated_vocabulary_inv]
 
