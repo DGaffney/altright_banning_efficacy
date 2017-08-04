@@ -43,6 +43,10 @@ for f in os.popen("ls "+filepath+"/baumgartner_data"+prefix+"/comments_altright"
 path = filepath+"/baumgartner_data"+prefix+"/machine_learning_resources"
 output = open(path+'/inner_full_altright_comments_vocabulary_inv.pkl', 'wb')
 vocabulary_inv = [x[0] for x in word_counter.most_common()]
+flipped = list(reversed(vocabulary_inv))
+flipped.append("<URL/>")
+flipped.append("<PAD/>")
+vocabulary_inv = list(reversed(flipped))
 pickle.dump(vocabulary_inv, output)
 output.close()
 output = open(path+'/inner_full_altright_comments_vocabulary.pkl', 'wb')

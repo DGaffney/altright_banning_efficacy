@@ -45,7 +45,7 @@ max_words = 5000
 min_word_count = 1
 context = 10
 def load_data(path, dataset):
-  x, y, vocabulary, vocabulary_inv_list = keras_data_helpers.load_data(path, dataset)
+  x, y, vocabulary, vocabulary_inv_list = keras_data_helpers.load_data(path, dataset, True)
   vocabulary_inv = {key: value for key, value in enumerate(vocabulary_inv_list)}
   y = y.argmax(axis=1)
   # Shuffle data
@@ -60,6 +60,18 @@ prefix = '' if args["test"] == None else '_test'
 filepath = os.popen('git rev-parse --show-toplevel').read().strip()
 path = filepath+"/baumgartner_data"+prefix+"/machine_learning_resources"
 x, y, vocabulary, vocabulary_inv = load_data(path, dataset)
+
+import csv
+def read_csv_str(filename):
+  dataset = []
+  i = 0
+  with open(filename, 'rb') as f:
+      reader = csv.reader(f)
+      for row in reader:
+        dataset.append(row)
+  return dataset
+
+
 if sequence_length != x.shape[1]:
     print("Adjusting sequence length for actual size")
     sequence_length = x.shape[1]
@@ -67,16 +79,16 @@ if sequence_length != x.shape[1]:
 observations = read_csv_str(path+"/"+dataset+"_human_votes_testing.csv")
 max_len = np.shape(x)[1]
 cleaned_sents = [str.join(" ", [PorterStemmer().stem(keras_data_helpers.stem_word(word)) for word in keras_data_helpers.clean_str(r[5]).split(" ")]) for r in observations]
-test_dataset = np.array([[vocabulary.get(word, 0) for word in sentence] for sentence in keras_data_helpers.pad_sentences([keras_data_helpers.clean_str(sent).split(" ")[:max_len] for sent in cleaned_sents], max_len)])
+test_dataset = np.array([[truncated_vocabulary.get(word, 0) for word in sentence] for sentence in keras_data_helpers.pad_sentences([keras_data_helpers.clean_str(sent).split(" ")[:max_len] for sent in cleaned_sents], max_len)])
 
-print("Vocabulary Size: {:d}".format(len(vocabulary_inv)))
+print("Vocabulary Size: {:d}".format(len(truncated_vocabulary_inv)))
 # Prepare embedding layer weights and convert inputs for static model
 print("Model type is", model_type)
 with open(path+"/"+dataset+'_vocabulary.json', 'w') as outfile:
-    json.dump(vocabulary, outfile)
+    json.dump(truncated_vocabulary, outfile)
 
 with open(path+"/"+dataset+'_vocabulary_inv.json', 'w') as outfile:
-    json.dump(vocabulary_inv, outfile)
+    json.dump(truncated_vocabulary_inv, outfile)
 
 def sensitivity(conmat):
   return float(conmat['tp'])/(conmat['tp']+conmat['fn'])
@@ -95,9 +107,10 @@ def recall(conmat):
 
 
 conmats = []
-for i in range(args['count']):
+model_names = []
+for i iin range(args['count']):
   if model_type in ["CNN-non-static", "CNN-static"]:
-      embedding_weights = train_word2vec(np.vstack((x)), vocabulary_inv, num_features=embedding_dim,
+      embedding_weights = train_word2vec(np.vstack((x)), truncated_vocabulary_inv, num_features=embedding_dim,
                                          min_word_count=min_word_count, context=context)
       if model_type == "CNN-static":
           x = np.stack([np.stack([embedding_weights[word] for word in sentence]) for sentence in x])
@@ -112,7 +125,7 @@ for i in range(args['count']):
   if model_type == "CNN-static":
       z = model_input
   else:
-      z = Embedding(len(vocabulary_inv), embedding_dim, input_length=sequence_length, name="embedding")(model_input)
+      z = Embedding(len(truncated_vocabulary_inv), embedding_dim, input_length=sequence_length, name="embedding")(model_input)
   
   z = Dropout(dropout_prob[0])(z)
   # Convolutional block
@@ -153,3 +166,4 @@ for i in range(args['count']):
   conmats.append(conmat)
   print accuracy(conmat)
   model.save(path+"/"+dataset+"_neural_net_voter_"+str(i)+".hdf5")
+  model_names.append(dataset+"_neural_net_voter_"+str(i)+".hdf5")

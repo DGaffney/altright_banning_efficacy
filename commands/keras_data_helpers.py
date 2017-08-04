@@ -155,15 +155,24 @@ def build_vocab(sentences):
     return [vocabulary, vocabulary_inv]
 
 
-def build_input_data(sentences, labels, vocabulary):
+def build_input_data(sentences, labels, vocabulary, vocabulary_cutoff=-1):
     """
     Maps sentencs and labels to vectors based on a vocabulary.
     """
-    x = np.array([[vocabulary[word] for word in sentence] for sentence in sentences])
+    x = []
+    for sentence in sentences:
+      sentence_ints = []
+      for word in sentence:
+        try:
+          sentence_ints.append(vocabulary[word])
+        except:
+          sentence_ints.append(vocabulary_cutoff+1)
+      x.append(sentence_ints)
+    x = np.array(x)
     y = np.array(labels)
     return [x, y]
     
-def load_data(path, dataset, use_full_vocab=True):
+def load_data(path, dataset, vocab_cutoff=-1):
     """
     Loads and preprocessed data for the MR dataset.
     Returns input vectors, labels, vocabulary, and inverse vocabulary.
@@ -171,13 +180,18 @@ def load_data(path, dataset, use_full_vocab=True):
     # Load and preprocess data
     sentences, labels = load_data_and_labels(path, dataset)
     sentences_padded = pad_sentences(sentences)
-    if use_full_vocab != True:
-      vocabulary, vocabulary_inv = build_vocab(sentences_padded)
-    else:
-      vocabulary_inv = pickle.load(open(path+'/'+dataset+'_full_altright_comments_vocabulary_inv.pkl', 'rb'))
-      vocabulary = pickle.load(open(path+'/'+dataset+'_full_altright_comments_vocabulary.pkl', 'rb'))
-    x, y = build_input_data(sentences_padded, labels, vocabulary)
-    return [x, y, vocabulary, vocabulary_inv]
+    vocabulary_inv = pickle.load(open(path+'/'+dataset+'_full_altright_comments_vocabulary_inv.pkl', 'rb'))
+    vocabulary = pickle.load(open(path+'/'+dataset+'_full_altright_comments_vocabulary.pkl', 'rb'))
+    truncated_vocabulary = {}
+    truncated_vocabulary_inv = []
+    if vocab_cutoff > 0:
+      for key in vocabulary:
+        if vocabulary[key] < vocab_cutoff:
+          truncated_vocabulary[key] = vocabulary[key]
+      for i in range(vocab_cutoff):
+        truncated_vocabulary_inv.append(vocabulary_inv[i])
+    x, y = build_input_data(sentences_padded, labels, truncated_vocabulary, vocab_cutoff)
+    return [x, y, truncated_vocabulary, truncated_vocabulary_inv]
 
 
 def batch_iter(data, batch_size, num_epochs):
