@@ -188,6 +188,8 @@ def load_data(path, dataset, vocab_cutoff=-1):
       for key in vocabulary:
         if vocabulary[key] < vocab_cutoff:
           truncated_vocabulary[key] = vocabulary[key]
+      if vocab_cutoff > len(vocabulary_inv):
+        vocab_cutoff = len(vocabulary_inv)
       for i in range(vocab_cutoff):
         truncated_vocabulary_inv.append(vocabulary_inv[i])
     truncated_vocabulary["<MISSING/>"] = vocab_cutoff

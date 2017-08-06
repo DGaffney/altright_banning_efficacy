@@ -168,3 +168,4 @@ for i in range(args['count']):
   print accuracy(conmat)
   model.save(path+"/"+dataset+"_neural_net_voter_"+str(i)+".hdf5")
   model_names.append(dataset+"_neural_net_voter_"+str(i)+".hdf5")
+
